@@ -54,4 +54,4 @@ async def on_message(message):
         if message.content.lower().startswith('i love you eurasia'):
                 await client.send_message(message.channel, 'Fuck you Eurasia')
 
-client.run('MzgxMTU3NjkxNTQxODE1MzQx.DPDEYA.lsJVmi7Mb2IZQbnzJV0ReISPzn4')
+client.run('token')
