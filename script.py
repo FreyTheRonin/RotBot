@@ -7,51 +7,73 @@ import codecs
 import string
 
 client = discord.Client()
-        
+
+#Copy your bot user's token here.
+token = ''
+
+hp = discord.Embed(title='How To Use', description='**Commands**\n        ' +
+                   'These commands DM the user the resultant encoded or decoded message.\n        ' +
+                   '**.rl** to translate the last message in the channel (that is not a .rl command).\n        ' +
+                   '**.rl n** to translate the last n messages in the channel, up to fifty.\n\n' +
+                   'If somebody posts a rot\'d message in chat and you want to know what it says, use **.rl** to get a decoded version DM\'d to you. ' +
+                   'If other people have talked since the message was posted,' +
+                   ' use .**rl n** with a high enough value to reach the message you want to decode.\n\nIf you want to encode a message yourself,' +
+                   ' simply DM me anything and I\'ll reply with an encoded version which you can copy and paste into the channel.\n\n' +
+                   'If you want to reduce chat clutter, give me Manage Messages permissions and I\'ll delete any **.rl** commands issued in text channels.\n\n' +
+                   'If anything is working incorrectly, DM @Frey#1251.', colour=0xFF0022)
+
+	
 @client.event
 async def on_ready():
-        print('Logged in as')
-        print(client.user.name)
-        print(client.user.id)
-        print('------')
-        await client.change_presence(game=discord.Game(name = '.rhelp for help'))
-        
+	print('Logged in as')
+	print(client.user.name)
+	print(client.user.id)
+	print('------')
+	await client.change_presence(game=discord.Game(name = '.rhelp for help'))
+	
 @client.event
 async def on_message(message):
-        if message.content.lower().startswith('.rhelp'):
-                await client.send_message(message.channel, 'Commands work inside DMs.\n\n**.rot text** to rot13 the given text and get a DM with the result.\n**.rl** to rot13 the last message in the channel (that is not a .rl command) and get a DM with the result.\n**.rl n** to rot13 the last n messages in the channel, up to 50, and get a DM with the result.\n\n**How to Use:** If somebody posts an encoded message in chat, use .rl or .rl n to get a decoded version DM\'d to you. You can also DM me the encoded message and use .rl.\n\nIf you want to encode a message yourself, DM me with a .rot text command or send me a message to encode and .rl it, then paste it on the text chat.\n\nIf you want .rl and .rot messages to not clutter the chat, give me Manage Messages permissions so I can delete the commands.\n\nOnly able to translate up to 2000 characters.')
-                await client.delete_message(message)
+        if not message.author.bot:
+                if message.channel.is_private:
+                        if not message.content.lower().startswith('.rhelp'):
+                                await client.send_message(message.author, codecs.encode(message.content, 'rot_13'))
 
-        if message.content.lower() == '.rl':
-                flag = False
-                async for msg in client.logs_from(message.channel, limit=15, before=message):
-                        if not (msg.content.lower().startswith('.rl')) and not flag:
-                                await client.send_message(message.author, codecs.encode(msg.content, 'rot_13'))
-                                flag = True
-                await client.delete_message(message)
+                        else:
+                                await client.send_message(message.channel, embed=hp)
+                else:
+                        if message.content.lower().startswith('.rhelp'):
+                                await client.send_message(message.channel, embed=hp)
+                        
+                        if message.content.lower() == '.rl':
+                                flag = False
+                                async for msg in client.logs_from(message.channel, limit=100, before=message):
+                                        if not (msg.content.lower().startswith('.rl')) and not flag:
+                                                await client.send_message(message.author, codecs.encode(msg.content, 'rot_13'))
+                                                flag = True
+                                await client.delete_message(message)
+                
+                        if message.content.lower().startswith('.rl '):
+                                rot = ''
+                                n = 1;
+                                t, i = message.content.split(' ')
+                                n = int(float(i))
+                                if n > 50:
+                                        await client.send_message(message.channel, 'Limit of 50 Messages')
+                                        n = 50
+                                async for msg in client.logs_from(message.channel, limit=n, before=message, reverse=True):
+                                        rot += codecs.encode(msg.content, 'rot_13') + '\n\n'
+                                await client.send_message(message.author, rot)
+                                await client.delete_message(message)
 
-        if message.content.lower().startswith('.rl '):
-                rot = ''
-                n = 1;
-                t, i = message.content.split(' ')
-                n = int(float(i))
-                if n > 50:
-                        await client.send_message(message.channel, 'Limit of 50 Messages')
-                        n = 50
-                async for msg in client.logs_from(message.channel, limit=n, before=message, reverse=True):
-                        rot += codecs.encode(msg.content, 'rot_13') + '\n\n'
-                await client.send_message(message.author, rot)
-                await client.delete_message(message)
+                        if message.content.lower() == '.rot':
+                                await client.send_message(message.channel, 'No argument given.')
+                                await client.delete_message(message)
 
-        if message.content.lower() == '.rot':
-                await client.send_message(message.channel, 'No argument given.')
-                await client.delete_message(message)
+                        if message.content.lower().startswith('.rot '):
+                                await client.send_message(message.author, codecs.encode(message.content[5: ], 'rot_13'))
+                                await client.delete_message(message)
+                                        
+                        if message.content.lower().startswith('i love you eurasia'):
+                                await client.send_message(message.channel, 'Fuck you Eurasia')
 
-        if message.content.lower().startswith('.rot '):
-                await client.send_message(message.author, codecs.encode(message.content[5: ], 'rot_13'))
-                await client.delete_message(message)
-				
-        if message.content.lower().startswith('i love you eurasia'):
-                await client.send_message(message.channel, 'Fuck you Eurasia')
-
-client.run('token')
+client.run(token)
