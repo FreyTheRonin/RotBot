@@ -2,8 +2,6 @@
 
 A bot which does various rot13 related stuff that's very useful for mobile users and stuff.
 
-Use [this](https://discordapp.com/oauth2/authorize?client_id=381157691541815341&scope=bot&permissions=0) link to invite a rot13 bot to your server.
-
 ### Version 1.0.3
 * Fixed the fact that the bot wouldn't work on DMs.
 * .rl and .rl n now work on DMs.
