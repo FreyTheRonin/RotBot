@@ -2,6 +2,9 @@
 
 A bot which does various rot13 related stuff that's very useful for mobile users and stuff.
 
+### Version 1.0.4
+* Final version.
+
 ### Version 1.0.3
 * Fixed the fact that the bot wouldn't work on DMs.
 * .rl and .rl n now work on DMs.
